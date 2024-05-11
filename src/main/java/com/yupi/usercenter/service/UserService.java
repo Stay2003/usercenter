@@ -12,5 +12,12 @@ import com.yupi.usercenter.model.domain.User;
  */
 public interface UserService extends IService<User> {
 
-
+    /**
+     * 用户注册
+     * @param userAccount
+     * @param userPassword
+     * @param checkPassword
+     * @return 用户 id
+     */
+    long userRegister(String userAccount,String userPassword,String checkPassword);
 }
