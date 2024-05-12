@@ -7,6 +7,7 @@ import com.yupi.usercenter.mapper.UserMapper;
 import com.yupi.usercenter.model.domain.User;
 import com.yupi.usercenter.service.UserService;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -25,11 +26,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     // 盐（为了增加密码的复杂度）
     private final static String SALT = "stay_2003";
+    // 登录状态保持的cookie名称
+    public static final String USER_LOGIN_STATE = "userLoginState";
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
         //1.校验
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
+            //todo 返回自定义异常信息
             return -1;   //参数不能为空
         }
         if (userAccount.length() < 4 || userAccount.length() > 16) {
@@ -71,7 +75,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public User Login(String userAccount, String userPassword) {
+    public User userLogin(String userAccount, String userPassword, HttpServletRequest request) {
         //1.校验
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
             return null;   //参数不能为空
@@ -87,22 +91,37 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return null;   //用户名只能包含字母和数字
         }
 
-        //加密
+        //2.加密
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
-        //2.查询用户是否存在
+        //查询用户是否存在
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
-        queryWrapper.eq("userpassword", encryptPassword);
+        queryWrapper.eq("userPassword", encryptPassword);
         User user = userMapper.selectOne(queryWrapper);
 
-        //3.用户不存在
+        //用户不存在
         if (user == null) {
             log.info("userAccount或userPassword错误");
             return null;   //用户数据错误
         }
 
-        //4.返回查询结果
-        return user;
+        //3.用户信息脱敏
+        User safetyUser = new User();
+        safetyUser.setId(user.getId());
+        safetyUser.setUsername(user.getUsername());
+        safetyUser.setUseraccount(user.getUseraccount());
+        safetyUser.setAvatarurl(user.getAvatarurl());
+        safetyUser.setGender(user.getGender());
+        safetyUser.setPhone(user.getPhone());
+        safetyUser.setEmail(user.getEmail());
+        safetyUser.setUserstatus(user.getUserstatus());
+        safetyUser.setCreatetime(user.getCreatetime());
+        safetyUser.setUpdatetime(user.getUpdatetime());
+
+        //4.记录用户登录态
+        request.getSession().setAttribute(USER_LOGIN_STATE, user);
+        //5.返回查询结果
+        return safetyUser;
     }
 
 }

@@ -2,6 +2,7 @@ package com.yupi.usercenter.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yupi.usercenter.model.domain.User;
+import jakarta.servlet.http.HttpServletRequest;
 
 
 /**
@@ -25,5 +26,5 @@ public interface UserService extends IService<User> {
      * @param userPassword
      * @return 脱敏后的用户信息 User
      */
-    User Login(String userAccount,String userPassword);
+    User userLogin(String userAccount, String userPassword, HttpServletRequest request);
 }

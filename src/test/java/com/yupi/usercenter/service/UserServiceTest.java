@@ -33,21 +33,21 @@ class UserServiceTest {
 
     @Test
     void userRegister() {
-        String userAccount = "test01";
+        String userAccount = "test02";
         String userPassword = "";
         String checkPassword = "123456";
         Long result = userService.userRegister(userAccount, userPassword, checkPassword);
         Assertions.assertEquals(-1, result);
 
-        userAccount = "01";
+        userAccount = "02";
         result = userService.userRegister(userAccount, userPassword, checkPassword);
         Assertions.assertEquals(-1, result);
 
-        userAccount = "test 01";
+        userAccount = "test 02";
         result = userService.userRegister(userAccount, userPassword, checkPassword);
         Assertions.assertEquals(-1, result);
 
-        userAccount = "test01";
+        userAccount = "test02";
         userPassword = "12345678";
         checkPassword = "12345678";
         result = userService.userRegister(userAccount, userPassword, checkPassword);
