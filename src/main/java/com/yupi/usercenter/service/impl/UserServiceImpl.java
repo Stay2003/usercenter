@@ -68,8 +68,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (!result) {
             return -1;   //注册失败
         }
-
-
         //返回用户id
         return user.getId();
     }
@@ -122,6 +120,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         request.getSession().setAttribute(USER_LOGIN_STATE, user);
         //5.返回查询结果
         return safetyUser;
+    }
+
+    @Override
+    public User getSafetyUser(User originUser) {
+        return null;
     }
 
 }

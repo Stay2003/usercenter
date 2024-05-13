@@ -20,6 +20,7 @@ public interface UserService extends IService<User> {
      */
     long userRegister(String userAccount,String userPassword,String checkPassword);
 
+
     /**
      * 用户登录
      * @param userAccount
@@ -27,4 +28,6 @@ public interface UserService extends IService<User> {
      * @return 脱敏后的用户信息 User
      */
     User userLogin(String userAccount, String userPassword, HttpServletRequest request);
+
+    User getSafetyUser(User originUser);
 }
