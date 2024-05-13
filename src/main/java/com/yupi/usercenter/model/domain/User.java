@@ -58,6 +58,8 @@ public class User implements Serializable {
      */
     private Integer userstatus;
 
+    private Integer userrole;
+
     /**
      * 创建时间
      */
@@ -152,6 +154,14 @@ public class User implements Serializable {
 
     public void setUserstatus(Integer userstatus) {
         this.userstatus = userstatus;
+    }
+
+    public Integer getUserrole() {
+        return userrole;
+    }
+
+    public void setUserrole(Integer userrole) {
+        this.userrole = userrole;
     }
 
     public Date getCreatetime() {

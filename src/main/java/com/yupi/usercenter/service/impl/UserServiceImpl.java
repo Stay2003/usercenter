@@ -14,6 +14,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import static com.yupi.usercenter.constant.UserConstant.USER_LOGIN_STATE;
+
 /**
  * 用户服务实现类
  */
@@ -27,7 +29,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     // 盐（为了增加密码的复杂度）
     private final static String SALT = "stay_2003";
     // 登录状态保持的cookie名称
-    public static final String USER_LOGIN_STATE = "userLoginState";
+
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
@@ -99,32 +101,35 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
         //用户不存在
         if (user == null) {
-            log.info("userAccount或userPassword错误");
+            log.info("用户不存在");
             return null;   //用户数据错误
         }
 
         //3.用户信息脱敏
-        User safetyUser = new User();
-        safetyUser.setId(user.getId());
-        safetyUser.setUsername(user.getUsername());
-        safetyUser.setUseraccount(user.getUseraccount());
-        safetyUser.setAvatarurl(user.getAvatarurl());
-        safetyUser.setGender(user.getGender());
-        safetyUser.setPhone(user.getPhone());
-        safetyUser.setEmail(user.getEmail());
-        safetyUser.setUserstatus(user.getUserstatus());
-        safetyUser.setCreatetime(user.getCreatetime());
-        safetyUser.setUpdatetime(user.getUpdatetime());
+        User safetyUser = getSafetyUser(user);
 
         //4.记录用户登录态
-        request.getSession().setAttribute(USER_LOGIN_STATE, user);
+        request.getSession().setAttribute(USER_LOGIN_STATE, safetyUser);
         //5.返回查询结果
         return safetyUser;
     }
 
+
+
     @Override
     public User getSafetyUser(User originUser) {
-        return null;
+        User safetyUser = new User();
+        safetyUser.setId(originUser.getId());
+        safetyUser.setUsername(originUser.getUsername());
+        safetyUser.setUseraccount(originUser.getUseraccount());
+        safetyUser.setAvatarurl(originUser.getAvatarurl());
+        safetyUser.setGender(originUser.getGender());
+        safetyUser.setPhone(originUser.getPhone());
+        safetyUser.setEmail(originUser.getEmail());
+        safetyUser.setUserstatus(originUser.getUserstatus());
+        safetyUser.setCreatetime(originUser.getCreatetime());
+        safetyUser.setUpdatetime(originUser.getUpdatetime());
+        safetyUser.setUserrole(originUser.getUserrole());
+        return safetyUser;
     }
-
 }
