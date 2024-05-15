@@ -11,7 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 public interface UserService extends IService<User> {
 
-
     /**
      * 用户注册
      * @param userAccount
