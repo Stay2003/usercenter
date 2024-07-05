@@ -32,9 +32,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
 
     @Override
-    public long userRegister(String userAccount, String userPassword, String checkPassword) {
+    public long userRegister(String userAccount, String userPassword, String checkPassword,String planetCode) {
         //1.校验
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
+        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword,planetCode)) {
             //todo 返回自定义异常信息
             return -1;   //参数不能为空
         }
@@ -47,6 +47,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (!userPassword.equals(checkPassword)) {
             return -1;   //两次输入的密码不一致
         }
+
+        if (planetCode.length() > 5) {
+               return -1;   //星球编号长度不能大于5位
+        }
         //校验特殊字符
         if (!userAccount.matches("^[a-zA-Z0-9]+$")) {
             return -1;   //用户名只能包含字母和数字
@@ -58,14 +62,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (count > 0) {
             return -1;   //用户已存在
         }
+        //编号不能重复
+        queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("planetCode", planetCode);
+        count = this.count(queryWrapper);
+        if (count > 0) {
+            return -1;   //用户已存在
+        }
 
         //2.加密密码
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
 
         //3.写入数据库
         User user = new User();
-        user.setUseraccount(userAccount);
-        user.setUserpassword(encryptPassword);
+        user.setUserAccount(userAccount);
+        user.setUserPassword(encryptPassword);
+        user.setPlanetCode(planetCode);
         boolean result = this.save(user);
         if (!result) {
             return -1;   //注册失败
@@ -124,15 +136,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User safetyUser = new User();
         safetyUser.setId(originUser.getId());
         safetyUser.setUsername(originUser.getUsername());
-        safetyUser.setUseraccount(originUser.getUseraccount());
-        safetyUser.setAvatarurl(originUser.getAvatarurl());
+        safetyUser.setUserAccount(originUser.getUserAccount());
+        safetyUser.setAvatarUrl(originUser.getAvatarUrl());
         safetyUser.setGender(originUser.getGender());
         safetyUser.setPhone(originUser.getPhone());
         safetyUser.setEmail(originUser.getEmail());
-        safetyUser.setUserstatus(originUser.getUserstatus());
-        safetyUser.setCreatetime(originUser.getCreatetime());
-        safetyUser.setUpdatetime(originUser.getUpdatetime());
-        safetyUser.setUserrole(originUser.getUserrole());
+        safetyUser.setPlanetCode(originUser.getPlanetCode());
+        safetyUser.setUserStatus(originUser.getUserStatus());
+        safetyUser.setCreateTime(originUser.getCreateTime());
+        safetyUser.setUpdateTime(originUser.getUpdateTime());
+        safetyUser.setUserRole(originUser.getUserRole());
         return safetyUser;
+    }
+
+    @Override
+    public int userLogout(HttpServletRequest request) {
+
+        request.getSession().removeAttribute(USER_LOGIN_STATE);
+
+        return 1;
     }
 }

@@ -2,7 +2,7 @@ package com.yupi.usercenter.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.yupi.usercenter.model.domain.User;
-import com.yupi.usercenter.model.request.UserRegisterRequest;
+import com.yupi.usercenter.model.domain.request.UserRegisterRequest;
 import com.yupi.usercenter.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,11 +35,11 @@ public class UserController {
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
         String checkPassword = userRegisterRequest.getCheckPassword();
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
+        String planetCode =userRegisterRequest.getPlanetCode();
+        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword,planetCode)) {
             return null;
         }
-        Long id = userService.userRegister(userAccount, userPassword, checkPassword);
-        return id;
+        return userService.userRegister(userAccount, userPassword, checkPassword,planetCode);
     }
 
     @PostMapping("/login")
@@ -54,6 +54,14 @@ public class UserController {
             return null;
         }
         return userService.userLogin(userAccount, userPassword, request);
+    }
+    @PostMapping("/logout")
+    public Integer userLogout(HttpServletRequest request) {
+        //校验
+        if (request == null) {
+            return null;
+        }
+        return userService.userLogout(request);
     }
 
     @GetMapping("/current")
@@ -82,7 +90,7 @@ public class UserController {
         }
         List<User> userList = userService.list(queryWrapper);
         return userList.stream().map(user -> {
-            user.setUserpassword(null);
+            user.setUserPassword(null);
             return userService.getSafetyUser(user);
         }).collect(Collectors.toList());
     }
@@ -99,6 +107,7 @@ public class UserController {
         return userService.removeById(id);
     }
 
+
     /**
      * 判断是否为管理员
      * @param request
@@ -108,7 +117,7 @@ public class UserController {
         //仅管理员可查询
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
         User user = (User) userObj;
-        if (user == null || user.getUserrole() != ADMIN_ROLE) {
+        if (user == null || user.getUserRole() != ADMIN_ROLE) {
             return false;
         }
         return true;
